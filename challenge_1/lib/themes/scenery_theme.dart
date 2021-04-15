@@ -29,6 +29,7 @@ class SceneryThemeData {
     required this.waterFillColor,
     required this.drawMoon,
     required this.drawSun,
+    required this.drawEveningSun,
   });
 
   final Color skyFillColor;
@@ -40,4 +41,6 @@ class SceneryThemeData {
   final bool drawSun;
 
   final bool drawMoon;
+
+  final bool drawEveningSun;
 }

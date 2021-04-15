@@ -28,6 +28,7 @@ class _SceneryState extends State<Scenery> {
               textHeight: _textAreaHeight,
               drawSun: CustomWidgetThemes.of(context).sceneryThemeData!.drawSun,
               drawMoon: CustomWidgetThemes.of(context).sceneryThemeData!.drawMoon,
+              drawEveningSun: CustomWidgetThemes.of(context).sceneryThemeData!.drawEveningSun,
             ),
             child: Container(),
           ),
@@ -35,6 +36,7 @@ class _SceneryState extends State<Scenery> {
           Positioned(
             bottom: 0,
             child: Container(
+              color: myTheme.currentThemeData.backgroundColor,
               height: _textAreaHeight,
               width: constraints.maxWidth,
               child: const SomeText(),
@@ -62,19 +64,19 @@ class _SceneryState extends State<Scenery> {
                     Expanded(
                       child: RadioListTile<ThemeType>(
                         contentPadding: EdgeInsets.symmetric(horizontal: 4),
-                        title: const Text('Dark'),
+                        title: const Text('Evening'),
                         groupValue: myTheme.themeType,
-                        value: ThemeType.Dark,
-                        onChanged: (ThemeType? mode) => myTheme.setThemeType(ThemeType.Dark),
+                        value: ThemeType.Other,
+                        onChanged: (ThemeType? mode) => myTheme.setThemeType(ThemeType.Other),
                       ),
                     ),
                     Expanded(
                       child: RadioListTile<ThemeType>(
                         contentPadding: EdgeInsets.symmetric(horizontal: 4),
-                        title: const Text('Other'),
+                        title: const Text('Dark'),
                         groupValue: myTheme.themeType,
-                        value: ThemeType.Other,
-                        onChanged: (ThemeType? mode) => myTheme.setThemeType(ThemeType.Other),
+                        value: ThemeType.Dark,
+                        onChanged: (ThemeType? mode) => myTheme.setThemeType(ThemeType.Dark),
                       ),
                     ),
                   ],

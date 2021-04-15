@@ -10,6 +10,7 @@ class SceneryPainter extends CustomPainter {
     required this.textHeight,
     required this.drawSun,
     required this.drawMoon,
+    required this.drawEveningSun,
   });
 
   final Color waterColor;
@@ -18,6 +19,7 @@ class SceneryPainter extends CustomPainter {
   final double textHeight;
   final bool drawSun;
   final bool drawMoon;
+  final bool drawEveningSun;
 
   final _paint = Paint();
 
@@ -30,16 +32,13 @@ class SceneryPainter extends CustomPainter {
     _center = Offset(size.width / 2, _canvasHeight / 2);
 
     _drawSeaAndSky(canvas, size);
-    _drawMountains(
-      canvas: canvas,
-      size: size,
-      isMountain: true,
-    );
-    _drawMountains(
-      canvas: canvas,
-      size: size,
-      isMountain: false,
-    );
+
+    if (drawEveningSun) {
+      _drawEveningSun(canvas);
+    }
+
+    _drawMountains(canvas: canvas, size: size);
+    _drawMountainShadows(canvas: canvas, size: size);
 
     if (drawSun) {
       _drawSun(canvas);
@@ -66,25 +65,44 @@ class SceneryPainter extends CustomPainter {
   void _drawMountains({
     required Canvas canvas,
     required Size size,
-    required bool isMountain,
   }) {
-    double reflectionHeightDelta;
-    int upOrDown;
     final skyHeight = _canvasHeight * .66;
-    if (isMountain) {
-      _paint.color = mountainColor;
-      reflectionHeightDelta = 0;
-      upOrDown = 1;
-    } else {
-      _paint.color = Colors.black12;
-      reflectionHeightDelta = skyHeight * 2;
-      upOrDown = -1;
-    }
+    _paint.color = mountainColor;
+    double reflectionHeightDelta = 0;
+    double upOrDown = 1;
 
     final leftMtLeftPt = Offset(0, reflectionHeightDelta + upOrDown * skyHeight);
     final leftMtPeakPt = Offset(size.width / 4, reflectionHeightDelta + upOrDown * _canvasHeight * .5);
     final leftMtRtPt = Offset(size.width / 2, reflectionHeightDelta + upOrDown * _canvasHeight * .58);
     final rtMtPeakPt = Offset(3 * size.width / 4, reflectionHeightDelta + upOrDown * _canvasHeight * .4);
+    final rtMtRtPt = Offset(size.width, reflectionHeightDelta + upOrDown * skyHeight);
+
+    final mtPath = Path();
+    mtPath.moveTo(leftMtLeftPt.dx, leftMtLeftPt.dy);
+    mtPath.lineTo(leftMtPeakPt.dx, leftMtPeakPt.dy);
+    mtPath.lineTo(leftMtRtPt.dx, leftMtRtPt.dy);
+    mtPath.lineTo(rtMtPeakPt.dx, rtMtPeakPt.dy);
+    mtPath.lineTo(rtMtRtPt.dx, rtMtRtPt.dy);
+
+    canvas.drawPath(mtPath, _paint);
+  }
+
+  void _drawMountainShadows({
+    required Canvas canvas,
+    required Size size,
+  }) {
+    final skyHeight = _canvasHeight * .66;
+    _paint.color = Colors.black12;
+    double reflectionHeightDelta = skyHeight * 2;
+    double upOrDown = -1;
+
+    final leftMtLeftPt = Offset(0, reflectionHeightDelta + upOrDown * skyHeight);
+    final leftMtPeakPt =
+        Offset(size.width / 4, reflectionHeightDelta + upOrDown * _canvasHeight * (drawEveningSun ? .42 : 0.5));
+    final leftMtRtPt =
+        Offset(size.width / 2, reflectionHeightDelta + upOrDown * _canvasHeight * (drawEveningSun ? .55 : 0.58));
+    final rtMtPeakPt =
+        Offset(3 * size.width / 4, reflectionHeightDelta + upOrDown * _canvasHeight * (drawEveningSun ? 0.32 : 0.4));
     final rtMtRtPt = Offset(size.width, reflectionHeightDelta + upOrDown * skyHeight);
 
     final mtPath = Path();
@@ -124,7 +142,7 @@ class SceneryPainter extends CustomPainter {
     final outerRadius = 40.0;
     final innerRadius = outerRadius * .75;
     final glowRadius = outerRadius + outerRadius / 3;
-    final moonColor = Colors.grey[300];
+    final moonColor = Colors.grey[400];
     _paint.color = moonColor!;
     _paint.style = PaintingStyle.fill;
     canvas.drawCircle(moonCenter, outerRadius, _paint);
@@ -143,6 +161,28 @@ class SceneryPainter extends CustomPainter {
       radius: glowRadius,
     ));
     canvas.drawCircle(moonCenter, glowRadius, paintWithShader);
+  }
+
+  void _drawEveningSun(Canvas canvas) {
+    final sunCenter = _center - Offset(_center.dx - 250, _center.dy / 2 - 100);
+    final innerRadius = 40.0;
+    final outerRadius = innerRadius + innerRadius / 3;
+    final sunColor = Colors.orangeAccent;
+    _paint.color = sunColor;
+    _paint.style = PaintingStyle.fill;
+    canvas.drawCircle(sunCenter, innerRadius, _paint);
+
+    final paintWithShader = Paint();
+    paintWithShader.shader = RadialGradient(
+      colors: [
+        sunColor.withOpacity(1),
+        sunColor.withOpacity(.02),
+      ],
+    ).createShader(Rect.fromCircle(
+      center: sunCenter,
+      radius: outerRadius,
+    ));
+    canvas.drawCircle(sunCenter, outerRadius, paintWithShader);
   }
 
   @override
